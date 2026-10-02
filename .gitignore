@@ -1,0 +1,27 @@
+# Зависимости Node.js
+node_modules/
+package-lock.json
+
+# Сборка Android и кэш Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/capacitor-cordova-android-plugins/build/
+android/local.properties
+android/*.iml
+android/app/*.iml
+
+# Конфигурация IDE
+.idea/
+android/.idea/
+.vscode/
+*.swp
+*.DS_Store
+
+# Скомпилированные файлы приложений
+*.apk
+*.aab
+
+# Журналы
+npm-debug.log*
+yarn-debug.log*

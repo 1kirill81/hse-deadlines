@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HSE Deadlines</string>
+    <string name="title_activity_main">HSE Deadlines</string>
+    <string name="package_name">ru.hse.deadlines</string>
+    <string name="custom_url_scheme">ru.hse.deadlines</string>
+</resources>

@@ -1,0 +1,10 @@
+{
+  "appId": "ru.hse.deadlines",
+  "appName": "HSE Deadlines",
+  "webDir": "www",
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
