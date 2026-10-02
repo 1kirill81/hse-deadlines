@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Дедлайны HSE</title>
+  
+  <!-- Стили интерфейса и темы -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -20,11 +22,7 @@
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body { background-color: #0f172a; color: #f1f5f9; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    .custom-scroll::-webkit-scrollbar { width: 4px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="min-h-screen p-3 sm:p-6 pb-12 select-none">
   <div class="max-w-2xl mx-auto space-y-4">
@@ -63,28 +61,33 @@
       </div>
       <div class="bg-cardbg border border-bordercol rounded-xl p-2.5 text-center">
         <div class="text-lg font-extrabold text-emerald-400" id="totalCount">0</div>
-        <div class="text-[10px] text-slate-400 uppercase font-semibold">Всего</div>
+        <div class="text-[10px] text-slate-400 uppercase font-semibold">Активных</div>
       </div>
     </div>
 
     <!-- Filters & Search Toolbar -->
-    <div class="bg-cardbg/80 border border-bordercol rounded-xl p-2 space-y-2">
+    <div class="bg-cardbg/80 border border-bordercol rounded-xl p-2.5 space-y-2">
+      <!-- 1. Поиск -->
       <div class="relative">
         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
         <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Поиск по названию или теме..." 
                class="w-full bg-darkbg border border-bordercol rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
       </div>
       
-      <div class="flex items-center gap-1.5">
+      <!-- 2. Выпадающий список дисциплин на всю ширину -->
+      <div class="relative">
         <select id="courseSelectFilter" onchange="applyFilters()" 
-                class="flex-1 min-w-0 bg-darkbg border border-bordercol rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-blue-500 transition truncate">
+                class="w-full bg-darkbg border border-bordercol rounded-lg px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500 transition truncate">
           <option value="all">Все дисциплины</option>
         </select>
-        <div class="flex items-center gap-1 shrink-0">
-          <button onclick="setTimeFilter('all')" class="time-filter-btn active px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-blue-600 text-white transition whitespace-nowrap" data-filter="all">Все</button>
-          <button onclick="setTimeFilter('critical')" class="time-filter-btn px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-darkbg hover:bg-slate-700 text-slate-300 border border-bordercol transition whitespace-nowrap" data-filter="critical">Горят</button>
-          <button onclick="setTimeFilter('week')" class="time-filter-btn px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-darkbg hover:bg-slate-700 text-slate-300 border border-bordercol transition whitespace-nowrap" data-filter="week">&le; 7 дн</button>
-        </div>
+      </div>
+
+      <!-- 3. Кнопки фильтрации по времени (Segmented Control) -->
+      <div class="grid grid-cols-4 gap-1 p-0.5 bg-darkbg/70 rounded-lg border border-bordercol/60">
+        <button onclick="setTimeFilter('active')" class="time-filter-btn active py-1.5 rounded-md text-[11px] font-semibold bg-blue-600 text-white transition text-center whitespace-nowrap shadow-sm" data-filter="active">Активные</button>
+        <button onclick="setTimeFilter('critical')" class="time-filter-btn py-1.5 rounded-md text-[11px] font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition text-center whitespace-nowrap" data-filter="critical">Горят</button>
+        <button onclick="setTimeFilter('week')" class="time-filter-btn py-1.5 rounded-md text-[11px] font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition text-center whitespace-nowrap" data-filter="week">&le; 7 дн</button>
+        <button onclick="setTimeFilter('expired')" class="time-filter-btn py-1.5 rounded-md text-[11px] font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition text-center whitespace-nowrap" data-filter="expired">Прошедшие</button>
       </div>
     </div>
 
@@ -145,413 +148,11 @@
     </div>
   </div>
 
-  <script>
-    // 1. Базовый справочник дисциплин HSE
-    const DEFAULT_COURSES = {
-      "1120764_2_1326300": "Вычислительные системы и компьютерные сети (Иванова Е.М.)",
-      "1120764_2_1326320": "Вычислительные системы и компьютерные сети (Салибекян С.М.)",
-      "1120764_2_2204566": "Вычислительные системы и компьютерные сети (Борисов С.П.)",
-      "1120764_2_2269710": "Вычислительные системы и компьютерные сети (Альмасизаде П.Ф.)",
-      "1120764_2_2301979": "Вычислительные системы и компьютерные сети (Елисеенко А.М.)",
-      "1120770_2_1326369": "Схемотехника (Попов Д.А.)",
-      "1120770_2_1331487": "Схемотехника (Бирюков И.И.)",
-      "1120770_2_2269846": "Схемотехника (Озорнина М.М.)",
-      "968424_2_1326331": "Электроника (Самбурский Л.М.)",
-      "968424_2_1326969": "Электроника (Исмаил-Заде М.Р.)",
-      "968424_2_2297866": "Электроника (Хлынов П.А.)",
-      "968425_2_1326331": "Электроника (Самбурский Л.М.)",
-      "968425_2_1327374": "Электроника (Касаткин А.Д.)",
-      "1120768_1": "Операционные системы",
-      "1120778_1": "П/С «Основы технологии производства и ML»",
-      "1134002_2_1325342": "Основы метрологии (Юрин А.И.)",
-      "995183_2_1328203": "Математический анализ (Воронцова Т.Д.)",
-      "995183_2_1339427": "Математический анализ (Чой Е.)",
-      "981315_2_1326301": "Базы данных (Карпова И.п.)",
-      "981315_2_1327434": "Базы данных (Альбатша Ахмад М.Х.)",
-      "981286_2_1325543": "ООП (Клышинский Э.С.)",
-      "981286_2_1327005": "ООП (Лежнев Е.В.)",
-      "981286_2_1423827": "ООП (Рыбаков П.В.)",
-      "995347_2_1326284": "Дискретная математика (Славнов С.А.)",
-      "995347_2_2244100": "Дискретная математика (Нечитайло В.Г.)",
-      "995357_2_1328617": "ТВиМС (Марон А.И.)",
-      "995357_2_2381424": "ТВиМС (Фролов А.А.)",
-      "981482_2_1325331": "Компьютерная графика (Королев Д.А.)",
-      "981482_2_2011981": "Компьютерная графика (Пискунова А.М.)",
-      "1010583_1": "Основы автоматики и управления",
-      "1010644_1": "Теория цифровых автоматов",
-      "968394_1": "Электротехника"
-    };
-
-    let allDeadlines = [];
-    let detectedCourseIds = [];
-    let currentTimeFilter = 'all';
-
-    // 2. Хранилище настроек (ссылка только из localStorage)
-    function getStoredUrl() {
-      return (localStorage.getItem('ical_url') || "").trim();
-    }
-
-    function getCourseMapping() {
-      const custom = JSON.parse(localStorage.getItem('courses_mapping') || '{}');
-      return { ...DEFAULT_COURSES, ...custom };
-    }
-
-    // 3. Парсер iCal
-    function parseICal(rawText) {
-      const unfolded = rawText.replace(/\r?\n[ \t]/g, '');
-      const lines = unfolded.split(/\r?\n/);
-      
-      const events = [];
-      let current = null;
-
-      for (const line of lines) {
-        if (line.startsWith('BEGIN:VEVENT')) {
-          current = {};
-        } else if (line.startsWith('END:VEVENT')) {
-          if (current) events.push(current);
-          current = null;
-        } else if (current) {
-          const colonIdx = line.indexOf(':');
-          if (colonIdx === -1) continue;
-          
-          const rawKey = line.substring(0, colonIdx);
-          const value = line.substring(colonIdx + 1);
-          const key = rawKey.split(';')[0].toUpperCase();
-
-          current[key] = value;
-        }
-      }
-
-      const now = new Date();
-      const mapping = getCourseMapping();
-      const parsedTasks = [];
-      const foundCodes = new Set();
-
-      for (const ev of events) {
-        const dtStr = ev.DTEND || ev.DTSTART;
-        if (!dtStr) continue;
-
-        const m = dtStr.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})Z?)?$/);
-        if (!m) continue;
-
-        const date = m[4] !== undefined 
-          ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]))
-          : new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 23, 59, 59));
-
-        if (date < now) continue;
-
-        const catStr = ev.CATEGORIES || "";
-        const codeMatch = catStr.match(/\b(\d+_\d+_\d+)\b/);
-        const courseId = codeMatch ? codeMatch[1] : catStr.trim();
-        if (courseId) foundCodes.add(courseId);
-
-        const courseName = mapping[courseId] || (courseId ? courseId : "Общий курс");
-        
-        const title = (ev.SUMMARY || "Без названия")
-          .replace(/\\,/g, ',').replace(/\\;/g, ';').trim();
-        const desc = (ev.DESCRIPTION || "")
-          .replace(/\\n/gi, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';').trim();
-
-        parsedTasks.push({
-          id: ev.UID || Math.random().toString(),
-          title,
-          description: desc,
-          course_id: courseId,
-          course_name: courseName,
-          date,
-          iso_time: date.toISOString(),
-          date_display: date.toLocaleString('ru-RU', { 
-            timeZone: 'Europe/Moscow',
-            day: '2-digit', month: '2-digit', year: 'numeric',
-            weekday: 'short', hour: '2-digit', minute: '2-digit'
-          })
-        });
-      }
-
-      parsedTasks.sort((a, b) => a.date - b.date);
-      return { tasks: parsedTasks, detectedCodes: Array.from(foundCodes) };
-    }
-
-    // 4. Запрос к iCal через нативный плагин или fetch
-    async function fetchCalendar(url) {
-      const headers = {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36'
-      };
-
-      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.CapacitorHttp) {
-        const response = await window.Capacitor.Plugins.CapacitorHttp.get({ url, headers });
-        return response.data;
-      }
-
-      const res = await fetch(url, { headers });
-      return await res.text();
-    }
-
-    function calculateTimeRemaining(targetDate) {
-      const diff = targetDate - new Date();
-      if (diff <= 0) return { text: "Дедлайн истек", status: "expired" };
-      
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-
-      let text = days > 0 ? `${days}д ` : "";
-      text += `${hours}ч ${minutes}м`;
-
-      const totalHours = diff / (1000 * 60 * 60);
-      let status = "later";
-      if (totalHours <= 48) status = "critical";
-      else if (totalHours <= 24 * 7) status = "week";
-
-      return { text: `Осталось: ${text}`, status };
-    }
-
-    function showNoUrlState() {
-      document.getElementById('criticalCount').innerText = 0;
-      document.getElementById('soonCount').innerText = 0;
-      document.getElementById('totalCount').innerText = 0;
-      
-      const container = document.getElementById('deadlinesContainer');
-      container.innerHTML = `
-        <div class="text-center py-12 px-4 bg-cardbg rounded-2xl border border-dashed border-bordercol text-slate-300 space-y-3">
-          <div class="w-12 h-12 mx-auto rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-2xl border border-blue-500/20">
-            <i class="fa-solid fa-link-slash"></i>
-          </div>
-          <div>
-            <h3 class="text-sm font-semibold text-white">Ссылка на календарь не указана</h3>
-            <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-              Чтобы отобразить дедлайны, добавьте ссылку iCal из SmartLMS в настройках
-            </p>
-          </div>
-          <button onclick="openSettingsModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-blue-500/20 transition active:scale-95">
-            <i class="fa-solid fa-plus"></i>
-            <span>Указать ссылку</span>
-          </button>
-        </div>
-      `;
-    }
-
-    async function loadDeadlines() {
-      const url = getStoredUrl();
-      if (!url) {
-        showNoUrlState();
-        return;
-      }
-
-      const icon = document.getElementById('refreshIcon');
-      icon.classList.add('fa-spin');
-
-      try {
-        const icsText = await fetchCalendar(url);
-        const { tasks, detectedCodes } = parseICal(icsText);
-        allDeadlines = tasks;
-        detectedCourseIds = detectedCodes;
-
-        updateCourseSelect();
-        updateMetrics();
-        applyFilters();
-      } catch (e) {
-        document.getElementById('deadlinesContainer').innerHTML = `
-          <div class="text-center py-8 bg-cardbg rounded-xl border border-red-500/30 p-4 text-xs text-red-400 space-y-2">
-            <i class="fa-solid fa-triangle-exclamation text-2xl mb-1 text-red-400"></i>
-            <p class="font-medium">Ошибка загрузки календаря</p>
-            <p class="text-[11px] text-slate-400">${e.message || e}</p>
-            <button onclick="openSettingsModal()" class="mt-2 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white border border-bordercol">
-              Проверить ссылку
-            </button>
-          </div>
-        `;
-      } finally {
-        icon.classList.remove('fa-spin');
-      }
-    }
-
-    function updateCourseSelect() {
-      const select = document.getElementById('courseSelectFilter');
-      const curVal = select.value;
-      select.innerHTML = '<option value="all">Все дисциплины</option>';
-
-      const mapping = getCourseMapping();
-      const uniqueIds = [...new Set(allDeadlines.map(d => d.course_id))];
-      uniqueIds.forEach(id => {
-        const name = mapping[id] || id;
-        const opt = document.createElement('option');
-        opt.value = id;
-        opt.textContent = name;
-        select.appendChild(opt);
-      });
-      select.value = curVal || "all";
-    }
-
-    function updateMetrics() {
-      let crit = 0, soon = 0;
-      allDeadlines.forEach(item => {
-        const { status } = calculateTimeRemaining(item.date);
-        if (status === 'critical') crit++;
-        else if (status === 'week') soon++;
-      });
-      document.getElementById('criticalCount').innerText = crit;
-      document.getElementById('soonCount').innerText = soon;
-      document.getElementById('totalCount').innerText = allDeadlines.length;
-    }
-
-    function setTimeFilter(filter) {
-      currentTimeFilter = filter;
-      document.querySelectorAll('.time-filter-btn').forEach(btn => {
-        if (btn.dataset.filter === filter) {
-          btn.className = "time-filter-btn active px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-blue-600 text-white transition whitespace-nowrap";
-        } else {
-          btn.className = "time-filter-btn px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-darkbg hover:bg-slate-700 text-slate-300 border border-bordercol transition whitespace-nowrap";
-        }
-      });
-      applyFilters();
-    }
-
-    function applyFilters() {
-      if (!getStoredUrl()) {
-        showNoUrlState();
-        return;
-      }
-
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const selectedCourse = document.getElementById('courseSelectFilter').value;
-      const container = document.getElementById('deadlinesContainer');
-      container.innerHTML = '';
-
-      const filtered = allDeadlines.filter(item => {
-        const { status } = calculateTimeRemaining(item.date);
-        const matchesTime = (currentTimeFilter === 'all') || (status === currentTimeFilter);
-        const matchesCourse = (selectedCourse === 'all') || (item.course_id === selectedCourse);
-        const matchesSearch = item.title.toLowerCase().includes(query) || 
-                              item.description.toLowerCase().includes(query) ||
-                              item.course_name.toLowerCase().includes(query);
-        return matchesTime && matchesCourse && matchesSearch;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-10 bg-cardbg rounded-xl border border-bordercol text-slate-400 text-xs">
-            <i class="fa-solid fa-calendar-xmark text-2xl mb-1 text-slate-500"></i>
-            <p>Нет задач по выбранным критериям</p>
-          </div>
-        `;
-        return;
-      }
-
-      filtered.forEach((task, idx) => {
-        const { text: remainText, status } = calculateTimeRemaining(task.date);
-        let borderClass = "border-slate-800";
-        let badgeClass = "bg-blue-500/10 text-blue-400 border border-blue-500/20";
-        let pulseDot = "";
-
-        if (status === "critical") {
-          borderClass = "border-red-500/40";
-          badgeClass = "bg-red-500/20 text-red-400 border border-red-500/30";
-          pulseDot = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping inline-block mr-1"></span>`;
-        } else if (status === "week") {
-          borderClass = "border-amber-500/40";
-          badgeClass = "bg-amber-500/20 text-amber-400 border border-amber-500/30";
-        }
-
-        const hasDesc = task.description.length > 0;
-        const descId = `desc-${idx}`;
-
-        const card = document.createElement('div');
-        card.className = `bg-cardbg border ${borderClass} rounded-xl p-3.5 transition shadow-sm`;
-        card.innerHTML = `
-          <div class="flex items-start justify-between gap-2">
-            <div class="space-y-1.5 flex-1 min-w-0">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${badgeClass} flex items-center shrink-0">
-                  ${pulseDot}${remainText}
-                </span>
-                <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1 truncate max-w-full" title="${task.course_name}">
-                  <i class="fa-solid fa-book-bookmark text-[8px] shrink-0"></i>
-                  <span class="truncate">${task.course_name}</span>
-                </span>
-              </div>
-              <h3 class="text-xs sm:text-sm font-semibold text-white leading-snug break-words">${task.title}</h3>
-              <div class="text-[11px] text-slate-400 font-mono flex items-center gap-1">
-                <i class="fa-regular fa-clock text-[10px]"></i>
-                <span>${task.date_display}</span>
-              </div>
-            </div>
-            
-            ${hasDesc ? `
-              <button onclick="toggleDesc('${descId}', this)" class="shrink-0 text-[10px] font-medium px-2 py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-bordercol flex items-center gap-1 transition">
-                <span>Инфо</span>
-                <i class="fa-solid fa-chevron-down transition-transform duration-200"></i>
-              </button>
-            ` : ''}
-          </div>
-
-          ${hasDesc ? `
-            <div id="${descId}" class="hidden mt-2.5 pt-2 border-t border-bordercol text-[11px] text-slate-300 leading-relaxed whitespace-pre-line bg-darkbg/50 p-2.5 rounded-lg border border-slate-800 custom-scroll max-h-48 overflow-y-auto">
-              ${task.description}
-            </div>
-          ` : ''}
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function toggleDesc(id, btn) {
-      const el = document.getElementById(id);
-      const icon = btn.querySelector('i');
-      if (el.classList.contains('hidden')) {
-        el.classList.remove('hidden');
-        icon.classList.add('rotate-180');
-      } else {
-        el.classList.add('hidden');
-        icon.classList.remove('rotate-180');
-      }
-    }
-
-    function openSettingsModal() {
-      document.getElementById('modalIcalUrl').value = getStoredUrl();
-      const list = document.getElementById('coursesMappingList');
-      list.innerHTML = '';
-
-      const mapping = getCourseMapping();
-      const allIds = [...new Set([...detectedCourseIds, ...Object.keys(mapping)])];
-
-      allIds.slice(0, 20).forEach(cid => {
-        const val = mapping[cid] || '';
-        row = document.createElement('div');
-        row.className = "flex items-center gap-1.5";
-        row.innerHTML = `
-          <span class="text-[10px] font-mono text-slate-400 w-28 truncate bg-darkbg px-2 py-1 rounded border border-bordercol" title="${cid}">${cid}</span>
-          <input type="text" data-course-id="${cid}" value="${val}" placeholder="Название предмета" 
-                 class="flex-1 bg-darkbg border border-bordercol rounded px-2 py-1 text-[11px] text-white focus:outline-none focus:border-blue-500">
-        `;
-        list.appendChild(row);
-      });
-
-      document.getElementById('settingsModal').classList.remove('hidden');
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settingsModal').classList.add('hidden');
-    }
-
-    function saveSettings() {
-      const url = document.getElementById('modalIcalUrl').value.trim();
-      localStorage.setItem('ical_url', url);
-
-      const custom = JSON.parse(localStorage.getItem('courses_mapping') || '{}');
-      document.querySelectorAll('#coursesMappingList input[data-course-id]').forEach(input => {
-        const cid = input.getAttribute('data-course-id');
-        custom[cid] = input.value.trim();
-      });
-      localStorage.setItem('courses_mapping', JSON.stringify(custom));
-
-      closeSettingsModal();
-      loadDeadlines();
-    }
-
-    // Запуск приложения
-    loadDeadlines();
-    setInterval(applyFilters, 60000);
-  </script>
+  <!-- Модули приложения -->
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/parser.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

@@ -18,9 +18,17 @@ android/.idea/
 *.swp
 *.DS_Store
 
-# Скомпилированные файлы приложений
+# Скомпилированные файлы приложений и ключи подписи
 *.apk
 *.aab
+*.keystore
+*.jks
+
+# Системные файлы Windows и кэш
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+.gradle/
 
 # Журналы
 npm-debug.log*
