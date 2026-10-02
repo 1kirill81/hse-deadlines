@@ -18,7 +18,7 @@ hse-app/
 │   │   ├── config.js            # Базовый справочник дисциплин (DEFAULT_COURSES)
 │   │   ├── storage.js           # Работа с localStorage
 │   │   ├── parser.js            # iCal RFC 5545 парсер и расчет времени
-│   │   ├── api.js               # Сетевой слой (CapacitorHttp / fetch)
+│   │   ├── api.js               # Сетевой слой (CapacitorHttp / CORS-fallback для веба)
 │   │   └── app.js               # Жизненный цикл, UI-события, фильтрация
 │   └── index.html               # Каркас интерфейса и подключение модулей
 ├── android/                     # Нативный проект Android Studio
